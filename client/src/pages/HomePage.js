@@ -1,9 +1,9 @@
 import React from "react";
-
+import {useEffect} from "react";
 function HomePage() {
   const [data, setData] = React.useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch("/api")
       .then((res) => res.json())
       .then((data) => setData(data.message));
