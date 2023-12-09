@@ -66,7 +66,7 @@ const rows = [
 ];
 
 
-export const HeartFailureTable = () => {
+export const HeartFailureMain = () => {
 
   return (
         <DataTable 

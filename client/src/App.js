@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HomePage } from './pages/HomePage';
-import { HeartFailureTable } from './pages/heart_failure_tool/HeartFailureTable'
+import HomePage from './pages/HomePage';
+import { HeartFailureMain } from './pages/heart_failure_tool/HeartFailureMain'
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { Box, Toolbar } from '@mui/material';
@@ -16,6 +16,8 @@ const tools = [
   {text: 'Heart Failure', icon: <VolunteerActivismIcon/>, url: "/heart_failure_tool"},
   {text: 'Other', icon: <InboxIcon/>, url: "#"}
 ];
+
+
 function App() {
   return (
     <Box sx={{ display: 'flex' }}>
@@ -34,7 +36,7 @@ function App() {
                   path="/"
                 />
                 <Route 
-                  element={<HeartFailureTable />} 
+                  element={<HeartFailureMain />} 
                   path="/heart_failure_tool"
                 />,
                 <Route 
