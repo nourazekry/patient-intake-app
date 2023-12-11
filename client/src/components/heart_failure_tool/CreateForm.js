@@ -1,20 +1,14 @@
+import { Typography, Divider } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-export const CreateForm = ({handleSubmit}) => {
+
+export const CreateForm = ({data, handleSubmit}) => {
     return (
         <form onSubmit={handleSubmit}>
-        <TextField
-          label="Name"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
+        <Typography>
+          Patient Data
+        </Typography>
+        <Divider />
         <Button
           variant="contained"
           color="primary"

@@ -11,7 +11,7 @@ const handleRowClick = (param, event) => {
   event.stopPropagation();
 };
 
-export const DataTable = ({rows, columns}) => {
+function DataTable ({rows, columns}) {
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <DataGrid
@@ -33,3 +33,5 @@ export const DataTable = ({rows, columns}) => {
     </div>
   );
 }
+
+export default DataTable;
