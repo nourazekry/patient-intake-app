@@ -7,8 +7,24 @@ const handleSubmit = () => {
 }
 function HeartFailureEdit() {
     const [data, setData] = useState([]);
+    const [fields, setFields] = useState([]);
+
     const {id} = useParams();
     console.log(id);
+    useEffect(() => {
+        const fetchFields = async () => {
+          try {
+            const response = await fetch(`/api/form_fields/heart_failure_tool/edit`);
+            const result = await response.json();
+            console.log(result.data);
+            setFields(result.data);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+    
+        fetchFields();
+      }, []);
     useEffect(() => {
         const fetchData = async () => {
           try {
@@ -26,6 +42,7 @@ function HeartFailureEdit() {
     return (
        <CreateForm 
         data={data}
+        masterList={fields}
         handleSubmit={handleSubmit}
         />
     );

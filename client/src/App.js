@@ -22,7 +22,7 @@ function App() {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Router>
-        <Header />
+        <Header toolName={'Heart Failure'}/>
         <Sidebar tools={tools}/>
         <Box
           component="main"

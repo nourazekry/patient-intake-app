@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { Toolbar } from '@mui/material';
 const drawerWidth = 240;
 
-export const Header = () => {
+export const Header = ({toolName}) => {
     return (
         <AppBar
         position="fixed"
@@ -13,7 +13,7 @@ export const Header = () => {
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
-            Permanent drawer
+            {toolName}
           </Typography>
         </Toolbar>
       </AppBar>
