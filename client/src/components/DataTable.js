@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { DataGrid } from '@mui/x-data-grid';
-
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useTheme } from '@mui/material/styles';
 
 const handleCellClick = (param, event) => {
   event.stopPropagation();
@@ -12,6 +12,8 @@ const handleRowClick = (param, event) => {
 };
 
 function DataTable ({rows, columns}) {
+  const theme = useTheme();
+
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <DataGrid
@@ -24,11 +26,16 @@ function DataTable ({rows, columns}) {
         }}
         pageSizeOptions={[5, 10]}
         checkboxSelection
-
         rowHeight={120}
         pageSize={100}
         onCellClick={handleCellClick}
         onRowClick={handleRowClick}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+          },
+        }}
       />
     </div>
   );

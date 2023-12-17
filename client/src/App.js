@@ -7,7 +7,7 @@ import { Box, Toolbar } from '@mui/material';
 import {CssBaseline} from '@mui/material';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { HeartFailureCreate } from './pages/heart_failure_tool/HeartFailureCreate';
+import HeartFailureCreate from './pages/heart_failure_tool/HeartFailureCreate';
 import HeartFailureEdit from './pages/heart_failure_tool/HeartFailureEdit';
 import { HeartFailureDischarge } from './pages/heart_failure_tool/HeartFailureDischarge';
 import { HeartFailureFollowUp } from './pages/heart_failure_tool/HeartFailureFollowUp';

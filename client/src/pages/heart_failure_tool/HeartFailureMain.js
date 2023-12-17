@@ -2,8 +2,11 @@ import * as React from 'react';
 import DataTable from '../../components/DataTable';
 import CreateIcon from '@mui/icons-material/Create';
 import { useEffect, useState } from 'react';
-import { Link } from "@mui/material";
+import { Link, Grid, Stack, Button } from "@mui/material";
 import CircularProgress from '@mui/material/CircularProgress';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'; 
+import AssignmentReturnedIcon from '@mui/icons-material/AssignmentReturned';
+import { useTheme } from '@emotion/react';
 
 function HeartFailureMain() {
   const [data, setData] = useState([]);
@@ -12,32 +15,38 @@ function HeartFailureMain() {
   const columns = [
     
 
-{ field: 'id', headerName: 'ID', flex: 1 },
-{ field: 'full_name', headerName: 'Full Name', flex: 1 },
+{ field: 'id', headerName: 'ID', flex: 1, filterable: true },
+{ field: 'full_name', headerName: 'Full Name', flex: 1, filterable: true },
 { field: 'sex', headerName: 'Sex', flex: 1 },
 { field: 'entry_date', headerName: 'Entry Date', flex: 1 },
 {
   field: "edit",
   headerName: "Edit",
   flex: 1,
+  align: 'center',
+  headerAlign: 'center',
   renderCell: (params) => {
-    return <Link href={`/heart_failure_tool/edit/${params.row.id}`}><CreateIcon/></Link>;
+    return <Link href={`/heart_failure_tool/edit/${params.row.id}`}><CreateIcon sx={{color: 'secondary.main'}}/></Link>;
   }
 },
 {
   field: "follow-up_visit",
   headerName: "Follow-up Visit",
   flex: 1,
+  headerAlign: 'center',
+  align: 'center',
   renderCell: (params) => {
-    return <Link href={`/heart_failure_tool/follow-up/${params.row.id}`}>Follow-up Visit</Link>;
+    return <Link href={`/heart_failure_tool/follow-up/${params.row.id}`}><AssignmentReturnedIcon sx={{color: 'secondary.main'}} /></Link>;
   }
 },
 {
   field: "discharge",
   headerName: "Discharge",
   flex: 1,
+  headerAlign: 'center',
+  align: 'center',
   renderCell: (params) => {
-    return <Link href={`/heart_failure_tool/discharge/${params.row.id}`}>Discharge</Link>;
+    return <Link href={`/heart_failure_tool/discharge/${params.row.id}`}><ExitToAppIcon sx={{color: 'secondary.main'}} /></Link>;
   }
 }
   ];
@@ -66,10 +75,19 @@ function HeartFailureMain() {
   if (data && data.length > 0) {
     // Render the DataTable when data is available
     return (
-      <DataTable 
-        rows={data}
-        columns={columns}
-      />
+      <Stack
+        spacing={2}
+      >
+        <Grid>
+          <Button variant='contained' sx={{bgcolor: 'secondary.main'}} href={`/heart_failure_tool/create`}>
+          Create
+        </Button>   
+        </Grid> 
+        <DataTable 
+          rows={data}
+          columns={columns}
+        />
+      </Stack>
     );
   } else {
     // Render a message when there is no data
