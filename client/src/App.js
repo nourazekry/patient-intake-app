@@ -19,7 +19,7 @@ const tools = [
 
 function App() {
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex'}}>
       <CssBaseline />
       <Router>
         <Header toolName={'Heart Failure'}/>

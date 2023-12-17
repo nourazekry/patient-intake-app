@@ -24,6 +24,7 @@ function DataTable ({rows, columns}) {
             paginationModel: { page: 0, pageSize: 5 },
           },
         }}
+        sx={{borderColor: 'info.main'}}
         pageSizeOptions={[5, 10]}
         checkboxSelection
         rowHeight={120}

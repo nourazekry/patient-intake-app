@@ -37,6 +37,7 @@ const Sidebar = ({tools}) => {
       '& .MuiDrawer-paper': {
         width: drawerWidth,
         boxSizing: 'border-box',
+        borderColor: 'info.main'
       },
     }}
     variant="permanent"
@@ -66,7 +67,7 @@ const Sidebar = ({tools}) => {
           </ListItemButton>
         </ListItem>
     </List>
-    <Divider />
+    <Divider sx={{borderColor: 'info.main'}}/>
     <List>
       {tools.map((tool, index) => (
         <ListItem 
@@ -93,7 +94,7 @@ const Sidebar = ({tools}) => {
         </ListItem>
       ))}
     </List>
-    <Divider />
+    <Divider sx={{borderColor: 'info.main'}} />
     <List>
     </List>
   </Drawer>  
