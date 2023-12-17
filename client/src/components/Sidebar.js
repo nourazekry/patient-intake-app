@@ -23,7 +23,6 @@ export const Sidebar = ({tools}) => {
     <Drawer
     sx={{
       width: drawerWidth,
-      color: 'primary.main',
       flexShrink: 0,
       '& .MuiDrawer-paper': {
         width: drawerWidth,

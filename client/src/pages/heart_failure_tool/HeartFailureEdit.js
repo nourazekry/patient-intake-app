@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { CreateForm } from '../../components/heart_failure_tool/CreateForm';
+import CreateForm from '../../components/heart_failure_tool/CreateForm';
 import { useParams } from 'react-router-dom';
 const handleSubmit = () => {
     console.log('submit');
