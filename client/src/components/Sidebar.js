@@ -13,12 +13,22 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MailIcon from '@mui/icons-material/Mail';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
-
+import { useState, useEffect } from 'react';
 const drawerWidth = 240;
 
-export const Sidebar = ({tools}) => {
+const Sidebar = ({tools}) => {
+  const [selectedTool, setSelectedTool] = useState('');
+  const { tool: toolParam } = useParams();
+  const location = useLocation();
+
+  useEffect(() => {
+    const currToolPath = location.pathname.split('/')[1];
+    console.log(currToolPath);
+    setSelectedTool('/' + currToolPath);
+  },[location]);
+
   return (    
     <Drawer
     sx={{
@@ -33,12 +43,23 @@ export const Sidebar = ({tools}) => {
     anchor="left"
   >
     <List>
-        <ListItem key="Home" disablePadding>
+        <ListItem 
+          key="Home" 
+          disablePadding
+          sx={{
+            backgroundColor: "/" == selectedTool ? 'secondary.main' : '',
+            color: "/" == selectedTool ? 'white' : ''  
+          }}
+        >
           <ListItemButton
             component={Link}
             to="/"
           >
-            <ListItemIcon>
+            <ListItemIcon
+            sx={{
+              color: "/" === selectedTool ? 'white' : ''   
+            }}
+            >
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Home" />
@@ -48,12 +69,23 @@ export const Sidebar = ({tools}) => {
     <Divider />
     <List>
       {tools.map((tool, index) => (
-        <ListItem key={tool.text} disablePadding>
+        <ListItem 
+          key={tool.text} 
+          sx={{
+            backgroundColor: tool.url == selectedTool ? 'secondary.main' : '',
+            color: tool.url == selectedTool ? 'white' : ''  
+          }}
+          disablePadding
+        >
           <ListItemButton
             component={Link}
             to={tool.url}
           >
-            <ListItemIcon>
+            <ListItemIcon
+            sx={{
+              color: tool.url === selectedTool ? 'white' : ''   
+            }}
+            >
               {tool.icon}
             </ListItemIcon>
             <ListItemText primary={tool.text} />
@@ -63,17 +95,8 @@ export const Sidebar = ({tools}) => {
     </List>
     <Divider />
     <List>
-      {['All mail', 'Trash', 'Spam'].map((text, index) => (
-        <ListItem key={text} disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItemButton>
-        </ListItem>
-      ))}
     </List>
   </Drawer>  
   );
 }
+export default Sidebar;

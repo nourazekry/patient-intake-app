@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { Toolbar } from '@mui/material';
 const drawerWidth = 240;
 
-export const Header = ({toolName}) => {
+export const Header = () => {
     return (
         <AppBar
         position="fixed"
@@ -14,8 +14,8 @@ export const Header = ({toolName}) => {
           width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            {toolName}
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
+            ICC Patient Data Manager
           </Typography>
         </Toolbar>
       </AppBar>

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import HeartFailureMain from './pages/heart_failure_tool/HeartFailureMain'
 import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
+import Sidebar from './components/Sidebar';
 import { Box, Toolbar } from '@mui/material';
 import {CssBaseline} from '@mui/material';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
@@ -14,7 +14,7 @@ import { HeartFailureFollowUp } from './pages/heart_failure_tool/HeartFailureFol
 
 const tools = [
   {text: 'Heart Failure', icon: <VolunteerActivismIcon/>, url: "/heart_failure_tool"},
-  {text: 'Other', icon: <InboxIcon/>, url: "#"}
+  {text: 'Other', icon: <InboxIcon/>, url: "/other"}
 ];
 
 function App() {
@@ -33,6 +33,10 @@ function App() {
                 <Route 
                   element={<HomePage/>} 
                   path="/"
+                />
+                <Route 
+                  element={<HomePage/>} 
+                  path="/other"
                 />
                 <Route 
                   element={<HeartFailureMain />} 
