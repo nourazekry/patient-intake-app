@@ -9,7 +9,9 @@ import {
   Checkbox,
   Card,
   CardContent,
-  Pagination
+  Pagination,
+  Input,
+  InputAdornment
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -17,7 +19,7 @@ import { useFormik } from 'formik';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const renderSubcategory = (index, name) => (
   <Grid item xs={12} key={index}>
@@ -29,7 +31,7 @@ const renderSubcategory = (index, name) => (
   </Grid>
 );
 
-const renderTextField = (index, name, field, required, value) => (
+const renderTextField = (index, name, field, required, value, onChange) => (
   <Grid item xs={12} md={6} key={index}>
     <TextField
       id={field}
@@ -37,11 +39,26 @@ const renderTextField = (index, name, field, required, value) => (
       required={required}
       value={value}
       fullWidth
+      onChange={onChange}
     />
   </Grid>
 );
 
-const renderAutocomplete = (index, name, field, required, value) => (
+const renderNumField = (index, name, field, required, value, onChange) => (
+  <Grid item xs={12} md={6} key={index}>
+    <TextField
+      id={field}
+      label={name}
+      required={required}
+      value={value}
+      fullWidth
+      type='number'
+      onChange={onChange}
+    />
+  </Grid>
+);
+
+const renderAutocomplete = (index, name, field, required, value, onChange) => (
   <Grid item xs={12} md={6} key={index}>
     <Autocomplete
       id={field}
@@ -49,15 +66,42 @@ const renderAutocomplete = (index, name, field, required, value) => (
       required={required}
       value={value}
       fullWidth
+      onChange={onChange}
     />
   </Grid>
 );
 
 
 const CreateForm = ({ masterList, handleSubmit }) => {
+  const [initialValuesState, setInitialValuesState] = useState({});
+
+  useEffect(() => {
+    // Iterate through masterList to initialize initial values
+    const newInitialValues = {};
+    Object.keys(masterList).forEach((category) => {
+      masterList[category].forEach((field) => {
+        if(field.type === 'text' || field.type === 'num') {
+          newInitialValues[field.field] = '';
+        } else if(field.type === 'bool'){
+          newInitialValues[field.field] = false;
+        } else if(field.type === 'checkbox'){
+          newInitialValues[field.field] = '';
+        } else if (field.type === 'date'){
+          newInitialValues[field.field] = null;
+        }
+        
+      });
+    });
+    setInitialValuesState(newInitialValues);
+  }, [masterList]);
+  useEffect(() => {
+    console.log(initialValuesState);
+  }, [initialValuesState])
+
   const formik = useFormik({
-    initialValues: {},
-    onSubmit: (values) => {
+    initialValues: {initialValuesState},
+    onSubmit: (values, initialValues) => {
+      console.log(initialValues)
       alert(JSON.stringify(values, null, 2));
     },
   });
@@ -72,29 +116,31 @@ const CreateForm = ({ masterList, handleSubmit }) => {
       [name]: value,
     }));
   };
-  const renderCheckbox = (index, name, field, options, required) => {
-    const optionsArr = options.split('|');
-  
-    if (optionsArr.length > 1) {
-      // Render a group of radio buttons for multiple options
-      return renderRadioGroup(name, optionsArr, required);
-    } else {
+  const renderCheckbox = (index, name, field, options, required, value, onChange) => {
       // Render a single checkbox for a single option
       return (
         <Grid item xs={12} md={6} key={index}>
           <Typography sx={{ fontWeight: 'bold' }}>{name}</Typography>
           <FormControlLabel
             control={<Checkbox />}
-            id={optionsArr[0]}
-            label={optionsArr[0]}
+            id={name}
             required={required}
+            value={value}
+            onChange={onChange}
           />
         </Grid>
       );
-    }
   };
   
-  const renderRadioGroup = (name, options, required) => (
+  const renderRadioGroup = (index, name, field, options, required) => {
+    if(!options){
+      console.log(name, options);
+      return;
+    }
+    const optionsArr = options.split('|');
+    
+
+    return (
     <Grid item xs={12} md={6} key={name}>
       <Typography sx={{ fontWeight: 'bold' }}>{name}</Typography>
       <RadioGroup
@@ -103,7 +149,7 @@ const CreateForm = ({ masterList, handleSubmit }) => {
         value={selectedOptions[name] || ''}
         onChange={(event) => handleRadioChange(name, event.target.value)}
       >
-        {options.map((option) => (
+        {optionsArr.map((option) => (
           <FormControlLabel
             key={option}
             value={option}
@@ -114,7 +160,8 @@ const CreateForm = ({ masterList, handleSubmit }) => {
         ))}
       </RadioGroup>
     </Grid>
-  );
+    );
+  };
   
 
   const handleChangePage = (event, newPage) => {
@@ -149,7 +196,8 @@ const CreateForm = ({ masterList, handleSubmit }) => {
                                 field.name,
                                 field.field,
                                 field.required === 1,
-                                formik.values[field.field]
+                                formik.values[field.field],
+                                formik.handleChange
                               )}
                             {field.type === 'autocomplete' &&
                               renderAutocomplete(
@@ -159,13 +207,33 @@ const CreateForm = ({ masterList, handleSubmit }) => {
                                 field.required === 1,
                                 formik.values[field.field]
                               )}
-                            {field.type === 'checkbox' &&
+                              {field.type == 'num' &&
+                              renderNumField(
+                                index,
+                                field.name,
+                                field.field,
+                                field.required === 1,
+                                formik.values[field.field] || '',
+                                formik.handleChange
+                              )}
+                            {field.type === 'bool' &&
                               renderCheckbox(
                                 index,
                                 field.name,
                                 field.field,
+                                'true|false',
+                                field.required === 1,
+                                formik.values[field.field] || false,
+                                formik.handleChange
+                              )}
+                            {field.type === 'checkbox' &&
+                              renderRadioGroup(
+                                index,
+                                field.name,
+                                field.field,
                                 field.options,
-                                field.required === 1
+                                field.required === 1,
+                                formik.values[field.field] || '',
                               )}
                             {field.type === 'subcategory' &&
                               renderSubcategory(index, field.name)}
@@ -177,6 +245,7 @@ const CreateForm = ({ masterList, handleSubmit }) => {
                                     name={field.field}
                                     format="DD/MM/YYYY"
                                     required={field.required === 1}
+                                    value={formik.values[field.field] || null}
                                   />
                                 </LocalizationProvider>
                               </Grid>

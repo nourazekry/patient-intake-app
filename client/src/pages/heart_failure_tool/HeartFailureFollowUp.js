@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-export const HeartFailureFollowUp = () => {
+function HeartFailureFollowUp() {
+  const [data, setData] = useState();
+  const {id} = useParams();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/heart_failure_tool/edit/${id}`);
+        const result = await response.json();
+        console.log(result.data[0]);
+        setData(result.data[0]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [id]);
     return (
         <form>
       <TextField
@@ -27,3 +45,4 @@ export const HeartFailureFollowUp = () => {
     </form>
     );
 };
+export default HeartFailureFollowUp;

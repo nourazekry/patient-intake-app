@@ -10,7 +10,7 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import HeartFailureCreate from './pages/heart_failure_tool/HeartFailureCreate';
 import HeartFailureEdit from './pages/heart_failure_tool/HeartFailureEdit';
 import { HeartFailureDischarge } from './pages/heart_failure_tool/HeartFailureDischarge';
-import { HeartFailureFollowUp } from './pages/heart_failure_tool/HeartFailureFollowUp';
+import HeartFailureFollowUp from './pages/heart_failure_tool/HeartFailureFollowUp';
 
 const tools = [
   {text: 'Heart Failure', icon: <VolunteerActivismIcon/>, url: "/heart_failure_tool"},
