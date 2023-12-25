@@ -1,7 +1,7 @@
 import React from "react";
 function HomePage() {
   return (
-        <img src='/logo_04.png' />
+        <img src='/assets/logo_04.png' />
           
   );
 }

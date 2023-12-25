@@ -707,7 +707,7 @@ const formData = [
       "required": 0,
       "category_id": 4,
       "options": "Performed|Not Performed",
-      "dependent_field_id_range": "99-100"
+      "children": "99-100"
     },
     {
       "id": 99,
@@ -737,28 +737,31 @@ const formData = [
       "required": 0,
       "category_id": 4,
       "options": "Not Indicated|Indicated|Already Implanted",
-      "dependent_field_id_range": "108-109"
+      "children": 
+        [
+          {
+            "id": 108,
+            "field": "if_indicated_crt",
+            "name": "If Indicated, treatment",
+            "type": "checkbox",
+            "required": 0,
+            "category_id": 4,
+            "options": "Not Planned|Planned",
+            "dependent_field_id_range": null
+          },
+          {
+            "id": 109,
+            "field": "if_not_planned_crt",
+            "name": "If Not Planned, treatment",
+            "type": "checkbox",
+            "required": 0,
+            "category_id": 4,
+            "options": "Absence of clinical indication|Cost Issues|Patient Refusal|Logistic Issues|Other",
+            "dependent_field_id_range": null
+          },
+        ]
     },
-    {
-      "id": 108,
-      "field": "if_indicated_crt",
-      "name": "If Indicated, treatment",
-      "type": "checkbox",
-      "required": 0,
-      "category_id": 4,
-      "options": "Not Planned|Planned",
-      "dependent_field_id_range": null
-    },
-    {
-      "id": 109,
-      "field": "if_not_planned_crt",
-      "name": "If Not Planned, treatment",
-      "type": "checkbox",
-      "required": 0,
-      "category_id": 4,
-      "options": "Absence of clinical indication|Cost Issues|Patient Refusal|Logistic Issues|Other",
-      "dependent_field_id_range": null
-    },
+    
     {
       "id": 110,
       "field": "icd_implantation",
@@ -767,28 +770,30 @@ const formData = [
       "required": 0,
       "category_id": 4,
       "options": null,
-      "dependent_field_id_range": "111-112"
+      "children": [
+        {
+          "id": 111,
+          "field": "if_indicated_icd",
+          "name": "If Indicated, treatment",
+          "type": "checkbox",
+          "required": 0,
+          "category_id": 4,
+          "options": "Not Planned|Planned",
+          "dependent_field_id_range": null
+        },
+        {
+          "id": 112,
+          "field": "if_not_planned_icd",
+          "name": "If Not Planned, treatment",
+          "type": "checkbox",
+          "required": 0,
+          "category_id": 4,
+          "options": "Absence of clinical indication|Cost Issues|Patient Refusal|Logistic Issues|Other",
+          "dependent_field_id_range": null
+        }
+      ]
     },
-    {
-      "id": 111,
-      "field": "if_indicated_icd",
-      "name": "If Indicated, treatment",
-      "type": "checkbox",
-      "required": 0,
-      "category_id": 4,
-      "options": "Not Planned|Planned",
-      "dependent_field_id_range": null
-    },
-    {
-      "id": 112,
-      "field": "if_not_planned_icd",
-      "name": "If Not Planned, treatment",
-      "type": "checkbox",
-      "required": 0,
-      "category_id": 4,
-      "options": "Absence of clinical indication|Cost Issues|Patient Refusal|Logistic Issues|Other",
-      "dependent_field_id_range": null
-    }
+    
 ];
 
 formData.forEach((result) => {
