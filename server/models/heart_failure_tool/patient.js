@@ -10,7 +10,6 @@ exports.getHeartFailurePatientById = (id) => {
       ON pd.id = g.patient_data_id
       WHERE g.id = ?`;
       db.query(query, [id], (error, results) => {
-        console.log(results);
         if (error) {
           reject(error);
         } else {

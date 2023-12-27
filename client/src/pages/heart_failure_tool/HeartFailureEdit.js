@@ -2,9 +2,11 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import CreateForm from '../../components/heart_failure_tool/CreateForm';
 import { useParams } from 'react-router-dom';
+
 const handleSubmit = () => {
     console.log('submit');
 }
+
 function HeartFailureEdit() {
     const [data, setData] = useState([]);
     const [fields, setFields] = useState([]);
@@ -14,7 +16,7 @@ function HeartFailureEdit() {
     useEffect(() => {
         const fetchFields = async () => {
           try {
-            const response = await fetch(`/api/form_fields/heart_failure_tool/edit`);
+            const response = await fetch(`/api/form_fields/heart_failure_tool/1`);
             const result = await response.json();
             console.log(result.data);
             setFields(result.data);
@@ -22,7 +24,6 @@ function HeartFailureEdit() {
             console.error("Error fetching data:", error);
           }
         };
-    
         fetchFields();
       }, []);
     useEffect(() => {
@@ -36,7 +37,6 @@ function HeartFailureEdit() {
             console.error("Error fetching data:", error);
           }
         };
-    
         fetchData();
       }, [id]);
     return (

@@ -25,8 +25,9 @@ exports.getHeartFailurePatientById = async (req, res) => {
   }; 
 
   exports.getHeartFailureFormFields = async (req, res) => {
+    const { page } = req.params;
     try {
-      const data = await form.getHeartFailureFormFields();
+      const data = await form.getHeartFailureFormFields(page);
       res.json({ data });
     } catch (error) {
       console.error('Error fetching data:', error);

@@ -11,7 +11,7 @@ function HeartFailureCreate() {
     useEffect(() => {
         const fetchFields = async () => {
           try {
-            const response = await fetch(`/api/form_fields/heart_failure_tool/edit`);
+            const response = await fetch(`/api/form_fields/heart_failure_tool/1`);
             const result = await response.json();
             setMasterList(result.data);
           } catch (error) {

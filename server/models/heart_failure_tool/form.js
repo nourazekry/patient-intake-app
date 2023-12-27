@@ -1,27 +1,31 @@
 const db = require('../../db/dbConfig');
 
-exports.getHeartFailureFormFields = () => {
+exports.getHeartFailureFormFields = (page) => {
     return new Promise((resolve, reject) => {
       const query = 
       `SELECT 
-        f.id, f.field, f.name, f.type, f.required, f.options, f.dependent_field_id_range, c.name
-       AS 
-        category_name 
-       FROM 
-        Patients.HeartFailureFields f 
-        INNER JOIN 
-        Patients.Categories c 
-        ON 
-        c.id = f.category_id 
-        WHERE f.category_id IN 
-        (SELECT 
-            c.id 
-        FROM 
-            Patients.Categories c 
-        WHERE 
-            c.tool = 1);
+      f.id, f.field, f.name, f.type, f.required, f.options, f.dependent_field_id_range, f.field_order, c.name
+     AS 
+      category_name 
+     FROM 
+      Patients.HeartFailureFields f 
+      INNER JOIN 
+      Patients.Categories c 
+      ON 
+      c.id = f.category_id 
+      WHERE f.category_id IN 
+      (SELECT 
+          c.id 
+      FROM 
+          Patients.Categories c 
+      WHERE 
+          c.tool = 1
+      AND c.page = ?
+      )
+      ORDER BY f.field_order
       `;
-      db.query(query, (error, results) => {
+      db.query(query, [page], (error, results) => {
+        console.log(query);
         if (error) {
           reject(error);
         } else {
@@ -38,7 +42,6 @@ exports.getHeartFailureFormFields = () => {
                 result.children = []
                 // get all the ids from that dependent field value
                 const idArray = result.dependent_field_id_range.split(',');
-                console.log(result.dependent_field_id_range)
 
                 if (idArray) {
                     idArray.forEach((dependentId) => {

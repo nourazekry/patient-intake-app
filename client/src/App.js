@@ -11,7 +11,8 @@ import HeartFailureCreate from './pages/heart_failure_tool/HeartFailureCreate';
 import HeartFailureEdit from './pages/heart_failure_tool/HeartFailureEdit';
 import { HeartFailureDischarge } from './pages/heart_failure_tool/HeartFailureDischarge';
 import HeartFailureFollowUp from './pages/heart_failure_tool/HeartFailureFollowUp';
-
+import { ThemeProvider } from '@mui/material';
+import theme from "./theme";
 const tools = [
   {text: 'Heart Failure', icon: <VolunteerActivismIcon/>, url: "/heart_failure_tool"},
   {text: 'Other', icon: <InboxIcon/>, url: "/other"}
@@ -19,6 +20,8 @@ const tools = [
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
+
     <Box sx={{ display: 'flex'}}>
       <CssBaseline />
       <Router>
@@ -31,11 +34,11 @@ function App() {
           <Toolbar />
             <Routes>
                 <Route 
-                  element={<HomePage/>} 
+                  element={<HomePage tools={tools}/>} 
                   path="/"
                 />
                 <Route 
-                  element={<HomePage/>} 
+                  element={<HomePage tools={tools}/>} 
                   path="/other"
                 />
                 <Route 
@@ -62,7 +65,7 @@ function App() {
         </Box>
       </Router>
     </Box>
-        
+        </ThemeProvider>
 )
 }
 

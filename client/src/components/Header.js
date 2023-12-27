@@ -15,7 +15,7 @@ export const Header = () => {
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
-            ICC Patient Data Manager
+            ICC Patient Portal
           </Typography>
         </Toolbar>
       </AppBar>

@@ -1,48 +1,51 @@
-import React, { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { useEffect } from 'react';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import CreateForm from '../../components/heart_failure_tool/CreateForm';
 import { useParams } from 'react-router-dom';
 
-function HeartFailureFollowUp() {
-  const [data, setData] = useState();
-  const {id} = useParams();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/heart_failure_tool/edit/${id}`);
-        const result = await response.json();
-        console.log(result.data[0]);
-        setData(result.data[0]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+const handleSubmit = () => {
+    console.log('submit');
+}
 
-    fetchData();
-  }, [id]);
+function HeartFailureFollowUp() {
+    const [data, setData] = useState([]);
+    const [fields, setFields] = useState([]);
+
+    const {id} = useParams();
+    console.log(id);
+    useEffect(() => {
+        const fetchFields = async () => {
+          try {
+            const response = await fetch(`/api/form_fields/heart_failure_tool/2`);
+            const result = await response.json();
+            console.log(result.data);
+            setFields(result.data);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+        fetchFields();
+      }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await fetch(`/api/heart_failure_tool/edit/${id}`);
+            const result = await response.json();
+            console.log(result.data[0]);
+            setData(result.data[0]);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+        fetchData();
+      }, [id]);
     return (
-        <form>
-      <TextField
-        label="Name"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Email"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        type="submit"
-      >
-        Submit
-      </Button>
-    </form>
+       <CreateForm 
+        data={data}
+        masterList={fields}
+        handleSubmit={handleSubmit}
+        />
     );
-};
+}
+
 export default HeartFailureFollowUp;

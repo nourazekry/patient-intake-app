@@ -23,8 +23,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Report from './Report';
+import { useTheme } from '@mui/material/styles';
 
 const CreateForm = ({ masterList, handleSubmit }) => {
+  const theme = useTheme();
+
 
 const renderSubcategory = (index, name) => (
   <Grid item xs={12} key={index}>
@@ -35,8 +38,24 @@ const renderSubcategory = (index, name) => (
     </Divider>
   </Grid>
 );
+const renderRow = (index, name, field, children, required, value, onChange) => {
 
-const renderTextField = (index, name, field, required, value, onChange) => (
+  return(
+    <Grid container spacing={3}>
+      <Grid item xs={2}>
+        <Typography sx={{fontWeight: 'bold'}}>{name}</Typography>
+      </Grid>
+      {children && children.map((child, childIndex) => {
+        return(<Grid item xs={child.type == 'num' ? 3 : 6} key={childIndex}>
+          {renderField(child, childIndex)}
+        </Grid>);
+      })} 
+  </Grid>
+
+)};
+      
+
+const renderTextField = (index, name, field, required, value, onChange, typeMultiline) => (
   <Grid item xs={12} key={index}>
     <TextField
       id={field}
@@ -44,51 +63,76 @@ const renderTextField = (index, name, field, required, value, onChange) => (
       required={required}
       value={value}
       fullWidth
+      multiline={typeMultiline}
+      rows={typeMultiline ? 3 : ''}
       onChange={onChange}
     />
   </Grid>
 );
-const EquationField = ({ name, field, required, unit, calculatedValue }) => (
-  <Grid item xs={12}>
-    <TextField
-      id={field}
-      label={name}
-      required={required}
-      value={calculatedValue}
-      fullWidth
-      type='number'
-      InputProps={{
-        readOnly: true,
-        endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
-      }}
-    />
-  </Grid>
-);
-
+const parseOptions = (options) => {
+  try {
+    console.log(options)
+    const parsedOptions = JSON.parse(options);
+    console.log(parsedOptions)
+    return {
+      range: parsedOptions.range ?? '',
+      unit: parsedOptions.unit ?? '',
+      equation: parsedOptions.equation ?? '',
+      start: parsedOptions.start ?? '',
+    };
+  } catch (error) {
+    console.error('Error parsing options:', error);
+    return { range: '', unit: '', equation: '' };
+  }
+};
 const renderNumField = (index, name, field, type, options, required, value, onChange, formikValues, setFieldValue) => {
   
   if (type === 'equation') {
     // Parse options to get the equation and unit
-    const { equation, unit } = options ? JSON.parse(options) : { equation: '', unit: '' };
-
-    // Evaluate the equation based on other field values
-    const calculatedValue = evaluateEquation(equation, formikValues, field, value, setFieldValue);
+    const { equation, unit, range } = parseOptions(options);
 
     return (
-      <EquationField
-        key={index}
-        name={name}
-        field={field}
+      <Grid container spacing={1}>
+    <Grid item xs={12}>
+      <Button variant="contained" color="info" onClick={() => {
+        const calculatedValue = evaluateEquation(equation, formikValues, field, value, setFieldValue)
+        setCalculatedValues((prevCalculatedValues) => ({
+          ...prevCalculatedValues,
+          [field]: calculatedValue,
+        }));  
+      }}>
+        Calculate {name}
+      </Button>
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+        id={field}
+        label={name}
         required={required}
-        unit={unit}
-        calculatedValue={calculatedValue}
+        value={calculatedValues[field] || ''}
+        fullWidth
+        type='number'
+        InputProps={{
+          readOnly: true,
+          endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
+        }}
       />
+      </Grid>
+        
+    </Grid>
+      
     );
   } else {
-    const { unit } = options ? JSON.parse(options) : {unit: '' };
+    const { range, unit, equation, start } = parseOptions(options);
+    console.log(start);
 
+    const rangeArr = range.split('-');
     return (
-      <Grid item xs={12} key={index}>
+      <Grid container spacing={!start ? 0 : 2}>
+        {start  && <Grid item sx={2}>
+          <Typography variant="h4">{start}</Typography>
+        </Grid>}
+        <Grid item xs={!start ? 12 : 10} key={index}>
         <TextField
           id={field}
           label={name}
@@ -99,10 +143,12 @@ const renderNumField = (index, name, field, type, options, required, value, onCh
           onChange={onChange}
           InputProps={{
             endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
+            inputProps: rangeArr.length > 1 ? { min: Number(rangeArr[0]), max: Number(rangeArr[1]) } : {}
           }}
         />
-
       </Grid>
+      </Grid>
+      
     );
   }
 };
@@ -116,6 +162,7 @@ const evaluateEquation = (equation, formikValues, field, value, setFieldValue) =
     });
     // Evaluate the substituted equation
     const res = eval(substitutedEquation);
+    
     // setFieldValue(field, res);
     return res;
   } catch (error) {
@@ -144,6 +191,8 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   const itemsPerPage = 1; // Set the number of items per page
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [calculatedValues, setCalculatedValues]  = useState({});
+
   useEffect(() => {
     // Iterate through masterList to initialize initial values
     const newInitialValues = {};
@@ -153,19 +202,19 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
           newInitialValues[field.field] = '';
         } else if(field.type === 'bool'){
           newInitialValues[field.field] = false;
-        } else if(field.type === 'checkbox'){
+        } else if(field.type === 'checkbox' || field.type === 'multiselect'){
           newInitialValues[field.field] = '';
         } else if (field.type === 'date'){
           newInitialValues[field.field] = null;
+        }else if (field.type === 'equation'){
+          newInitialValues[field.field] = '';
         }
         
       });
     });
     setInitialValuesState(newInitialValues);
   }, []);
-  useEffect(() => {
-    console.log(selectedOptions);
-  }, [selectedOptions]);
+
   
 
   const formik = useFormik({
@@ -175,24 +224,23 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       setSubmitted(true);
     },
   });
+  useEffect(() => {
+    console.log(selectedOptions);
+    for(const option in selectedOptions) {
+      console.log(option, selectedOptions[option]);
+      formik.setFieldValue(option, selectedOptions[option]);
+    }
+  }, [selectedOptions]);
 
-  const renderCheckbox = (index, name, field, options, required, value, onChange) => {
-      // Render a single checkbox for a single option
-      return (
-        <Grid item xs={12} key={index}>
-          <Typography sx={{ fontWeight: 'bold' }}>{name}</Typography>
-          <FormControlLabel
-            control={<Checkbox />}
-            id={name}
-            required={required}
-            value={value}
-            onChange={onChange}
-          />
-        </Grid>
-      );
-  };
+  useEffect(() => {
+    console.log(calculatedValues);
+    for(const value in calculatedValues) {
+      console.log(value, calculatedValues[value]);
+      formik.setFieldValue(value, calculatedValues[value]);
+    }
+  }, [calculatedValues]);
+
   const handleRadioChange = (groupName, value) => {
-
     // Update the selected option for the specific radio group
     setSelectedOptions((prevSelectedOptions) => ({
       ...prevSelectedOptions,
@@ -276,11 +324,22 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   };
 
   const renderField = (field, index) => {
-    if (field.type === 'text') {
+    if (field.type === 'text' || field.type === 'multiline') {
       return renderTextField(
         index,
         field.name,
         field.field,
+        field.required === 1,
+        formik.values[field.field],
+        formik.handleChange,
+        field.type === 'multiline'
+      );
+    }else if (field.type === 'rowTitle') {
+      return renderRow(
+        index,
+        field.name,
+        field.field,
+        field.children,
         field.required === 1,
         formik.values[field.field],
         formik.handleChange
@@ -337,7 +396,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
     } else if (field.type === 'subcategory') {
        return renderSubcategory(index, field.name);
       }else if(field.type === 'date') { return (
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Typography>{field.name}</Typography>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
@@ -352,8 +411,6 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       }
   }
 
-
-
   const handleChangePage = (event, newPage) => {
     setCurrentPage(newPage);
   };
@@ -362,7 +419,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   const endIndex = startIndex + itemsPerPage;
 
   return (
-    <Card>
+    <Card style={{boxShadow: '4px 4px 8px 8px rgba(247, 240, 233, 0.7)'}}>
       <CardContent>
         {submitted ? (<Report data={formik.values}/>) : (<form onSubmit={() => {
           alert(JSON.stringify(formik.values));
@@ -377,7 +434,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
                     <Typography variant="h4" sx={{fontWeight: 'bold'}} gutterBottom>
                       {category}
                     </Typography>
-                    <Divider />
+                    <Divider style={{color: 'beige'}}/>
                     <br></br>
                     <Grid container spacing={1}>
        
@@ -385,12 +442,16 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
                         masterList[category].map((field, index) => (
                           <>
                           {/* if field does not have children render it */}
-                          <Grid item md={field.type == 'subcategory' ? 12 : 6} xs={12}>
-                            {(!field.children || field.children.length == 0) && renderField(field, index)}
+                          <Grid item md={field.type == 'subcategory' || field.type == 'rowTitle' ? 12 : 6} xs={12}>
+                            {(!field.children || field.children.length == 0 || field.type == 'rowTitle') && renderField(field, index)}
                           </Grid>
                           {/* if field has children render it and each of its children in a box*/ }
-                          {field.children && field.children.length > 0 && (
-                             <Grid item sx={{borderStyle: 'solid'}}>
+                          {field.type !== 'rowTitle' && field.children && field.children.length > 0 && (
+                             <Grid item  xs={12} style={{
+                              borderBottom: '1px dotted #d8c3b5', // Subtle bottom border
+                              borderTop: '1px dotted #d8c3b5', // Subtle bottom border
+                              boxShadow: '4px 4px 8px 4px rgba(247, 240, 233, 0.7)',
+                            }}>
                               <Grid container spacing={2}>
                                <Grid item xs={12}>
                                 {renderField(field, index)}
@@ -411,7 +472,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
                   </Grid>
                 ))}
           </Grid>
-          <Grid container justifyContent="center">
+          <Grid container sx={{paddingTop: 1}} justifyContent="center">
             <Pagination
               count={Math.ceil(
                 Object.keys(masterList).length / itemsPerPage
