@@ -25,7 +25,7 @@ import { Link } from 'react-router-dom';
 import Report from './Report';
 import { useTheme } from '@mui/material/styles';
 
-const CreateForm = ({ masterList, handleSubmit }) => {
+const CreateForm = ({ masterList, onSubmitCallback }) => {
   const theme = useTheme();
 
 
@@ -130,7 +130,7 @@ const renderNumField = (index, name, field, type, options, required, value, onCh
     return (
       <Grid container spacing={!start ? 0 : 2}>
         {start  && <Grid item sx={2}>
-          <Typography variant="h4">{start}</Typography>
+          <Typography sx={{fontWeight: 'bold'}} variant="h4">{start}</Typography>
         </Grid>}
         <Grid item xs={!start ? 12 : 10} key={index}>
         <TextField
@@ -161,7 +161,7 @@ const evaluateEquation = (equation, formikValues, field, value, setFieldValue) =
       return formikValues[p1] || 0; // Use 0 if the variable is not found
     });
     // Evaluate the substituted equation
-    const res = eval(substitutedEquation);
+    const res = eval(substitutedEquation).toFixed(1);
     
     // setFieldValue(field, res);
     return res;
@@ -191,6 +191,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   const itemsPerPage = 1; // Set the number of items per page
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [dates, setDates] = useState({});
   const [calculatedValues, setCalculatedValues]  = useState({});
 
   useEffect(() => {
@@ -199,15 +200,15 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
     Object.keys(masterList).forEach((category) => {
       masterList[category].forEach((field) => {
         if(field.type === 'text' || field.type === 'num') {
-          newInitialValues[field.field] = '';
+          newInitialValues[field.id] = '';
         } else if(field.type === 'bool'){
-          newInitialValues[field.field] = false;
+          newInitialValues[field.id] = false;
         } else if(field.type === 'checkbox' || field.type === 'multiselect'){
-          newInitialValues[field.field] = '';
+          newInitialValues[field.id] = '';
         } else if (field.type === 'date'){
-          newInitialValues[field.field] = null;
+          newInitialValues[field.id] = null;
         }else if (field.type === 'equation'){
-          newInitialValues[field.field] = '';
+          newInitialValues[field.id] = '';
         }
         
       });
@@ -220,7 +221,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   const formik = useFormik({
     initialValues: initialValuesState,
     onSubmit: (values) => {
-      alert('Saved Successfully!');
+      onSubmitCallback(values);
       setSubmitted(true);
     },
   });
@@ -231,7 +232,13 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       formik.setFieldValue(option, selectedOptions[option]);
     }
   }, [selectedOptions]);
-
+  useEffect(() => {
+    console.log(dates);
+    for(const date in dates) {
+      console.log(date, dates[date]);
+      formik.setFieldValue(date, JSON.stringify(dates[date]));
+    }
+  }, [selectedOptions]);
   useEffect(() => {
     console.log(calculatedValues);
     for(const value in calculatedValues) {
@@ -255,7 +262,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
 
     return (
       <Grid item xs={12} key={uniqueFieldName} sx={{fontWeight: 'bold'}}>
-        <Typography>
+        <Typography sx={{fontWeight: 'bold'}}>
           {fieldName}
         </Typography>
         <RadioGroup
@@ -295,11 +302,12 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       return;
     }
     const optionsArray = options.split('|');
+    console.log(optionsArray);
   
     return (
       <Grid item xs={12} key={uniqueFieldName} sx={{ fontWeight: 'bold' }}>
-        <Typography>{fieldName}</Typography>
-        {optionsArray &&
+        {options !== 'Yes|No' && <Typography sx={{ fontWeight: 'bold' }}>{fieldName}</Typography>}
+        {optionsArray && options != 'Yes|No' &&
           optionsArray.map((option) => (
             <FormControlLabel
               key={`${uniqueFieldName}-${option}`}
@@ -319,8 +327,43 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
               label={option}
             />
           ))}
+          {optionsArray && options == 'Yes|No' &&
+            <Grid item xs={12} key={uniqueFieldName} sx={{ fontWeight: 'bold' }}>
+              
+              <FormControlLabel
+              sx={{margin: '0', padding: '0'}}
+              labelPlacement='start'
+                label={
+          <Typography sx={{ display: 'inline-block', marginLeft: '0' , fontWeight: 'bold'}}>
+            {fieldName}
+          </Typography>
+        }
+                control={
+                  <Checkbox
+                    checked={(selectedOptions[uniqueFieldName] || []).length > 0}
+                    onChange={(event) => {
+                      const updatedValues = event.target.checked
+                        ? [uniqueFieldName]
+                        : [];
+
+                      handleCheckboxChange(uniqueFieldName, updatedValues);
+                    }}
+                  />
+
+                }
+
+              />
+            </Grid>
+          }
       </Grid>
     );
+  };
+  const handleDateChange = (fieldName, value) => {
+    // Update the selected option for the specific radio group
+    setDates((prevDates) => ({
+      ...prevDates,
+      [fieldName]: value,
+    }));
   };
 
   const renderField = (field, index) => {
@@ -328,9 +371,9 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       return renderTextField(
         index,
         field.name,
-        field.field,
+        field.id,
         field.required === 1,
-        formik.values[field.field],
+        formik.values[field.id],
         formik.handleChange,
         field.type === 'multiline'
       );
@@ -338,29 +381,29 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       return renderRow(
         index,
         field.name,
-        field.field,
+        field.id,
         field.children,
         field.required === 1,
-        formik.values[field.field],
+        formik.values[field.id],
         formik.handleChange
       );
     }else if (field.type === 'autocomplete') {
       return renderAutocomplete(
         index,
         field.name,
-        field.field,
+        field.id,
         field.required === 1,
-        formik.values[field.field]
+        formik.values[field.id]
       );
     }else if (field.type == 'num' || field.type == 'equation') {
       return renderNumField(
         index,
         field.name,
-        field.field,
+        field.id,
         field.type,
         field.options,
         field.required === 1,
-        formik.values[field.field] || '',
+        formik.values[field.id] || '',
         formik.handleChange,
         formik.values,
         formik.setFieldValue
@@ -369,41 +412,43 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
       return renderRadioGroup(
         index,
         field.name,
-        field.field,
+        field.id,
         'Yes|No',
         field.required === 1,
-        formik.values[field.field] || false,
+        formik.values[field.id] || false,
         formik.handleChange
       );
     } else if (field.type === 'checkbox'){
       return renderRadioGroup(
         index,
         field.name,
-        field.field,
+        field.id,
         field.options,
         field.required === 1,
-        formik.values[field.field] || '',
+        formik.values[field.id] || '',
       );
     } else if (field.type === 'multiselect'){
       return renderMultiselect(
         index,
         field.name,
-        field.field,
+        field.id,
         field.options,
         field.required === 1,
-        formik.values[field.field] || '',
+        formik.values[field.id] || '',
       );
     } else if (field.type === 'subcategory') {
        return renderSubcategory(index, field.name);
-      }else if(field.type === 'date') { return (
+      }else if(field.type === 'date') { 
+        return (
         <Grid item xs={12}>
-          <Typography>{field.name}</Typography>
+          <Typography sx={{ fontWeight: 'bold' }}>{field.name}</Typography>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              name={field.field}
+              name={field.id}
               format="DD/MM/YYYY"
               required={field.required === 1}
-              value={formik.values[field.field] || null}
+              value={dates[field.id] || null }
+              onChange={(e)=> {handleDateChange(field.id, e)}}
             />
           </LocalizationProvider>
         </Grid>
@@ -421,10 +466,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
   return (
     <Card style={{boxShadow: '4px 4px 8px 8px rgba(247, 240, 233, 0.7)'}}>
       <CardContent>
-        {submitted ? (<Report data={formik.values}/>) : (<form onSubmit={() => {
-          alert(JSON.stringify(formik.values));
-          // formik.handleSubmit();
-        }}>
+        {submitted ? (<Report data={formik.values}/>) : (<form onSubmit={formik.handleSubmit}>
           <Grid container key="top">
             {masterList &&
               Object.keys(masterList)
@@ -495,7 +537,7 @@ const renderAutocomplete = (index, name, field, required, value, onChange) => (
               variant="contained"
               color="primary"
               type="submit"
-              onChange={handleSubmit}
+              onChange={onSubmitCallback}
             >
               Submit
             </Button>

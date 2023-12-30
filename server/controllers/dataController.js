@@ -34,3 +34,17 @@ exports.getHeartFailurePatientById = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }; 
+  exports.saveHeartFailureFormData = async (req, res) => {
+    const { page } = req.params;
+    const values = req.body;
+  
+    try {
+      console.log('Received values:', values);
+      const data = await form.saveHeartFailureFormData(page, values);
+      res.json({ data });
+    } catch (error) {
+      console.error('Error saving data:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  

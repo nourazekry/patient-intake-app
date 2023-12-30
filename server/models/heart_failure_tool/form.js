@@ -1,10 +1,13 @@
-const db = require('../../db/dbConfig');
+const { queryAsync, pool } = require('../../db/dbConfig');
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
 
+dayjs.extend(customParseFormat);
 exports.getHeartFailureFormFields = (page) => {
     return new Promise((resolve, reject) => {
       const query = 
       `SELECT 
-      f.id, f.field, f.name, f.type, f.required, f.options, f.dependent_field_id_range, f.field_order, c.name
+      f.id, f.field, f.name, f.type, f.required, f.options, f.dependent_field_id_range, f.field_order, c.category_order, c.name
      AS 
       category_name 
      FROM 
@@ -15,17 +18,16 @@ exports.getHeartFailureFormFields = (page) => {
       c.id = f.category_id 
       WHERE f.category_id IN 
       (SELECT 
-          c.id 
+          c.id
       FROM 
           Patients.Categories c 
       WHERE 
           c.tool = 1
       AND c.page = ?
       )
-      ORDER BY f.field_order
+      ORDER BY c.category_order, f.field_order
       `;
-      db.query(query, [page], (error, results) => {
-        console.log(query);
+      pool.query(query, [page], (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -65,4 +67,72 @@ exports.getHeartFailureFormFields = (page) => {
         }
       });
     });
+  };
+
+  exports.saveHeartFailureFormData = async (page, formData) => {
+    // field_id 1 == name
+
+    // field_id 5 == national_id
+    // field_id 11 == date of visit i.e entry date
+    // entry_date optional
+    // if entry date then
+    // INSERT INTO `Patients`.`HeartFailurePatients` (`full_name`, `national_id`) VALUES (name, nationalId);
+    // else 
+    // INSERT INTO `Patients`.`HeartFailurePatients` (`full_name`, `entry_date`, `national_id`) VALUES (name, Date of Visit, NationalId);
+    // first insert into heartfailure patients
+    // then use the id from that to insert patient_id into HeartFailurePatientDataText, num or date based on type
+    // using key as field_id and value as value
+    
+    try {
+        const name = formData['1'];
+        const nationalId = formData['5'];
+        const entryDate = formData['11'] ?? null;
+
+        // Construct the patient insertion query
+        const patientInsertQuery = entryDate
+            ? "INSERT INTO `Patients`.`HeartFailurePatients` (`full_name`, `entry_date`, `national_id`) VALUES (?, ?, ?);"
+            : "INSERT INTO `Patients`.`HeartFailurePatients` (`full_name`, `national_id`) VALUES (?, ?);";
+
+        // Execute the patient insertion query using the connection pool
+        const patientInsertResult = await queryAsync(patientInsertQuery, [name, entryDate, nationalId].filter(Boolean));
+
+        // Get the generated patient_id
+        const patientId = patientInsertResult.insertId;
+
+        // Now, loop through formData to insert data into HeartFailurePatientDataText
+        for (const fieldId in formData) {
+            if (formData.hasOwnProperty(fieldId) && fieldId !== '1' && fieldId !== '5' && fieldId !== '11') {
+                const value = formData[fieldId];
+
+                // Construct the query for HeartFailurePatientDataText based on the data type
+                const dataTypeQuery = "INSERT INTO `Patients`.`HeartFailurePatientDataText` (`patient_id`, `field_id`, `value`) VALUES (?, ?, ?);";
+                const numDataTypeQuery = "INSERT INTO `Patients`.`HeartFailurePatientDataNum` (`patient_id`, `field_id`, `value`) VALUES (?, ?, ?);";
+                const dateDataTypeQuery = "INSERT INTO `Patients`.`HeartFailurePatientDataDate` (`patient_id`, `field_id`, `value`) VALUES (?, ?, ?);";
+
+                // Determine the data type and execute the corresponding query using the connection pool
+                if (!isNaN(value) && dayjs(value).isValid()) {
+                    console.log(value)
+                    // If value is a valid date, insert into HeartFailurePatientDataDate
+                    const formattedDate = dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+                    console.log(formattedDate);
+                    const dateObj = new Date(formattedDate);
+                    console.log(dateObj);
+                    await queryAsync(dateDataTypeQuery, [patientId, fieldId, dateObj]);
+                } else if (!isNaN(value)) {
+                    // If value is a number, insert into HeartFailurePatientDataNum
+                    await queryAsync(numDataTypeQuery, [patientId, fieldId, parseFloat(value)]);
+                } else {
+                    // Otherwise, insert into HeartFailurePatientDataText
+                    await queryAsync(dataTypeQuery, [patientId, fieldId, value]);
+                }
+            }
+        }
+
+        console.log('Data successfully saved:', patientId);
+        return { success: true, message: 'Data successfully saved' };
+    } catch (error) {
+        console.error('Error in saveHeartFailureFormData:', error);
+        throw error;
+    }
+    
   };

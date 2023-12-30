@@ -15,10 +15,9 @@ function HeartFailureMain() {
   const columns = [
     
 
-{ field: 'id', headerName: 'ID', flex: 1, filterable: true },
+{ field: 'national_id', headerName: 'National ID', flex: 1, filterable: true },
 { field: 'full_name', headerName: 'Full Name', flex: 1, filterable: true },
-{ field: 'sex', headerName: 'Sex', flex: 1 },
-{ field: 'entry_date', headerName: 'Entry Date', flex: 1 },
+{ field: 'entry_date', headerName: 'Entry Date'},
 {
   field: "edit",
   headerName: "Edit",
@@ -72,8 +71,7 @@ function HeartFailureMain() {
     return <CircularProgress />;
   }
 
-  if (data && data.length > 0) {
-    // Render the DataTable when data is available
+  
     return (
       <Stack
         spacing={2}
@@ -83,16 +81,13 @@ function HeartFailureMain() {
           Create
         </Button>   
         </Grid> 
-        <DataTable 
+        {data && data.length > 0 && <DataTable 
           rows={data}
           columns={columns}
-        />
+        />}
       </Stack>
     );
-  } else {
-    // Render a message when there is no data
-    return <div>No data available</div>;
-  }
+
 }
 
 export default HeartFailureMain;

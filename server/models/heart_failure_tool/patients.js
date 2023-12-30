@@ -1,16 +1,14 @@
-const db = require('../../db/dbConfig');
+const { pool } = require('../../db/dbConfig');
 
 exports.getHeartFailurePatients = () => {
     return new Promise((resolve, reject) => {
       const query = 
-             `SELECT g.id, 
-                full_name, 
-                sex, 
+             `SELECT id, 
+                full_name,
+                national_id, 
                 entry_date
-            FROM Patients.HeartFailureGeneral g 
-            INNER JOIN Patients.HeartFailurePatientData pd 
-            ON pd.id = g.patient_data_id;`;
-      db.query(query, (error, results) => {
+            FROM Patients.HeartFailurePatients`;
+      pool.query(query, (error, results) => {
         if (error) {
           reject(error);
         } else {

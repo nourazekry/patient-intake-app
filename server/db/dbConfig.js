@@ -1,3 +1,4 @@
+// dbConfig.js
 const mysql = require('mysql');
 
 const pool = mysql.createPool({
@@ -8,4 +9,19 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'Patients',
 });
 
-module.exports = pool;
+// Export the queryAsync function
+const queryAsync = (sql, values) => {
+  return new Promise((resolve, reject) => {
+    pool.query(sql, values, (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+// Export the pool
+module.exports = { queryAsync, pool };
+
